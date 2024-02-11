@@ -1,0 +1,87 @@
+<p><link rel='stylesheet' href='../assets/css/main.css'/></p>
+<h1 id="lab-6-domain-count">Lab 6: Domain Count</h1>
+<h3 id="overview">Overview</h3>
+<p>Count Domain based stats of clickstream</p>
+<h3 id="depends-on">Depends On</h3>
+<h3 id="run-time">Run time</h3>
+<p>30 mins</p>
+<h2 id="step-1-create-a-clickstream-topic">Step 1 : Create a
+‘clickstream’ topic</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   ~/apps/kafka/bin/kafka-topics.sh  <span class="at">--bootstrap-server</span> localhost:9092  <span class="at">--create</span> <span class="at">--topic</span> clickstream <span class="at">--replication-factor</span> 1  <span class="at">--partitions</span> 2</span></code></pre></div>
+<h2 id="step-2-listen-on-clickstream-topic">Step-2: Listen on
+<code>clickstream</code> topic</h2>
+<p>Use Kafkacat to see messages in the topic</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>    kafkacat <span class="at">-q</span> <span class="at">-C</span> <span class="at">-b</span> localhost:9092 <span class="at">-t</span> clickstream <span class="at">-f</span> <span class="st">&#39;Partition %t[%p], offset: %o, key: %k, value: %s\n&#39;</span></span></code></pre></div>
+<p>Or use console consumer</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   ~/apps/kafka/bin/kafka-console-consumer.sh <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">--bootstrap-server</span> localhost:9092 <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">--property</span> print.key=true <span class="at">--property</span> key.separator=<span class="st">&quot;:&quot;</span> <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">--topic</span> clickstream</span></code></pre></div>
+<h2 id="step-3-clickstream-producer">Step-3 : Clickstream Producer</h2>
+<ul>
+<li>Inspect file and make any fixes :
+<code>src/main/java/x/utils/ClickStreamProducer.java</code><br />
+</li>
+<li>Run the producer in Eclipse, Right click on the file and run as
+‘Java Application’</li>
+<li>Make sure it is sending messages as follows
+<ul>
+<li>key : Domain</li>
+<li>value : clickstream data</li>
+<li>example :</li>
+</ul></li>
+</ul>
+<pre class="console"><code>  key=facebook.com, value={&quot;timestamp&quot;:1451635200005,&quot;session&quot;:&quot;session_251&quot;,&quot;domain&quot;:&quot;facebook.com&quot;,&quot;cost&quot;:91,&quot;user&quot;:&quot;user_16&quot;,&quot;campaign&quot;:&quot;campaign_5&quot;,&quot;ip&quot;:&quot;ip_67&quot;,&quot;action&quot;:&quot;clicked&quot;}</code></pre>
+<p>Inspect ‘console-consumer’ output, it may look something like
+this</p>
+<pre class="console"><code>facebook.com:{&quot;timestamp&quot;:1451635200005,&quot;session&quot;:&quot;session_251&quot;,&quot;domain&quot;:&quot;facebook.com&quot;,&quot;cost&quot;:91,&quot;user&quot;:&quot;user_16&quot;,&quot;campaign&quot;:&quot;campaign_5&quot;,&quot;ip&quot;:&quot;ip_67&quot;,&quot;action&quot;:&quot;clicked&quot;}
+cnn.com:{&quot;timestamp&quot;:1451635200020,&quot;session&quot;:&quot;session_66&quot;,&quot;domain&quot;:&quot;cnn.com&quot;,&quot;cost&quot;:31,&quot;user&quot;:&quot;user_29&quot;,&quot;campaign&quot;:&quot;campaign_3&quot;,&quot;ip&quot;:&quot;ip_49&quot;,&quot;action&quot;:&quot;blocked&quot;}</code></pre>
+<h2 id="step-4-domaincount-consumer">Step-4 : DomainCount Consumer</h2>
+<p>This consumer will keep an running total of domain count seen in
+clickstream.</p>
+<ul>
+<li>Inspect file :
+<code>src/main/java/x/lab06_domain_count/DomainCountConsumer.java</code><br />
+</li>
+<li>Fix the TODO items</li>
+</ul>
+<p>Use reference Java API <a
+href="https://kafka.apache.org/0100/javadoc/index.html?org/apache/kafka/clients/consumer/KafkaConsumer.html">for
+Consumer</a></p>
+<h2 id="step-5-run">Step-5 :Run</h2>
+<ul>
+<li>Run the <code>lab06_domain_count.DomainCountConsumer</code> in
+Eclipse,</li>
+<li>Run the <code>utils.ClickStreamProducer</code> in Eclipse,</li>
+<li>Expected output</li>
+</ul>
+<pre class="console"><code>Got 10 messages
+Received message : ConsumerRecord(.....
+Domain Count is
+  [facebook.com=1]
+
+Received message : ConsumerRecord(.....
+Domain Count is
+  [facebook.com=1, foxnews.com=1]
+
+Received message : ConsumerRecord(.....
+Domain Count is
+  [facebook.com=2, foxnews.com=1]
+...</code></pre>
+<h2 id="bonus-caclculate-click-ratio">BONUS: Caclculate click ratio</h2>
+<p>This is a bonus task for you to try.</p>
+<p>Say we saw 10 records from facebook.com. 3 of them were clicks. That
+makes the click-ratio = 3 / 10 = 30%</p>
+<p>Calculate click ratios for all domains.</p>
+<p>And print out the domains with the highest click-ratio.</p>
+<p>Hint:</p>
+<ul>
+<li>You will want to keep track of total traffic (which we are doing
+here)</li>
+<li>And also keep a click-count (you will need to implement this)</li>
+<li>You can use another hashmap to keep track of clicks.</li>
+<li>And print out the ratio</li>
+</ul>

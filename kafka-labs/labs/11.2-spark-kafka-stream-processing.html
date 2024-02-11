@@ -1,0 +1,167 @@
+<p><link rel='stylesheet' href='../assets/css/main.css'/></p>
+<p><a href="../README.html">&lt;&lt; back to main index</a></p>
+<h1 id="lab-11.2-spark-structured-streaming-with-kafka">Lab 11.2: Spark
+Structured Streaming with Kafka</h1>
+<h3 id="overview">Overview</h3>
+<p>Use Spark to process data in Kafka in real time as streams.</p>
+<h3 id="depends-on">Depends On</h3>
+<p><a href="labs/11.1-spark-kafka-batch-processing.html">Lab 11.1 - Spark
+Kafla batch processing</a></p>
+<h3 id="run-time">Run time</h3>
+<p>40 mins</p>
+<h2 id="step-1-create-clickstream-topic">Step-1: Create Clickstream
+Topic</h2>
+<p>If you don’t have the topic, create it as follows</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   ~/apps/kafka/bin/kafka-topics.sh  <span class="at">--bootstrap-server</span> localhost:9092   <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--create</span> <span class="at">--topic</span> test <span class="at">--replication-factor</span> 1  <span class="at">--partitions</span> 10</span></code></pre></div>
+<h2 id="step-2-inspect-code">Step-2: Inspect code</h2>
+<p>Inspect file: <code>python/spark-consumer-streaming.py</code></p>
+<p>We will work through TODO items in this file</p>
+<p><strong>ACTION: Inspect Kafka connection options</strong></p>
+<h2 id="step-3-run-spark-consumer-code">Step-3: Run Spark Consumer
+Code</h2>
+<p>Open a terminal and execute these commands:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   cd  ~/kafka-labs/python</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>  ~/apps/spark/bin/spark-submit  <span class="at">--master</span> local[2] <span class="dt">\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--driver-class-path</span> .  <span class="dt">\</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--packages</span> org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1 <span class="dt">\</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    spark-consumer-streaming.py</span></code></pre></div>
+<p>This will initialize Spark session and connect to Kafka. You will
+output like following</p>
+<pre class="console"><code>root
+ |-- key: string (nullable = true)
+ |-- value: string (nullable = true)
+ |-- topic: string (nullable = true)
+ |-- partition: integer (nullable = true)
+ |-- offset: long (nullable = true)
+ |-- timestamp: timestamp (nullable = true)</code></pre>
+<p><strong>ACTION: Observe how Spark reads from Kafka and the data
+types</strong></p>
+<p><strong>ACTION: Keep this code running and this terminal
+open</strong></p>
+<h2 id="step-4-install-kafka-python-library">Step-4: Install Kafka
+Python Library</h2>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   pip install confluent_kafka</span></code></pre></div>
+<h2 id="step-5-run-clickstream-producer">Step-5: Run Clickstream
+Producer</h2>
+<p>Open a terminal and execute the producer</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   cd  ~/kafka-labs/python</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   python producer-clickstream.py</span></code></pre></div>
+<h2 id="step-6-observe-spark-consumer-output">Step-6: Observe Spark
+Consumer Output</h2>
+<p><strong>ACTION: Watch outupt as batches</strong></p>
+<p>The output may look like this:</p>
+<pre class="console"><code>-------------------------------------------
+Batch: 2
+-------------------------------------------
++------------+--------------------+-----------+---------+------+--------------------+
+|         key|               value|      topic|partition|offset|           timestamp|
++------------+--------------------+-----------+---------+------+--------------------+
+|facebook.com|{&quot;timestamp&quot;: 164...|clickstream|        9|  1988|2022-01-22 04:37:...|
+|facebook.com|{&quot;timestamp&quot;: 164...|clickstream|        9|  1989|2022-01-22 04:37:...|
+|facebook.com|{&quot;timestamp&quot;: 164...|clickstream|        9|  1990|2022-01-22 04:37:...|
++------------+--------------------+-----------+---------+------+--------------------+</code></pre>
+<h2 id="step-7-todo-1---extract-kafka-data-into-dataframes">Step-7:
+TODO-1 - Extract Kafka Data into Dataframes</h2>
+<p>Now let’s extract JSON data into Spark dataframe, so we can process
+it easily.</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># code for </span><span class="al">TODO</span><span class="co">-1</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># first we need a schema</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>schema <span class="op">=</span> StructType(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        StructField(<span class="st">&#39;timestamp&#39;</span>, StringType(), <span class="va">True</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        StructField(<span class="st">&#39;ip&#39;</span>, StringType(), <span class="va">True</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        StructField(<span class="st">&#39;user&#39;</span>, StringType(), <span class="va">True</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        StructField(<span class="st">&#39;action&#39;</span>, StringType(), <span class="va">True</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        StructField(<span class="st">&#39;domain&#39;</span>, StringType(), <span class="va">True</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        StructField(<span class="st">&#39;campaign&#39;</span>, StringType(), <span class="va">True</span>),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        StructField(<span class="st">&#39;cost&#39;</span>, IntegerType(), <span class="va">True</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># extract value from JSON string and populate into another df</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> df.withColumn(<span class="st">&quot;value&quot;</span>, from_json(<span class="st">&quot;value&quot;</span>, schema))<span class="op">\</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    .select(col(<span class="st">&#39;key&#39;</span>), col(<span class="st">&#39;value.*&#39;</span>))</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>df2.printSchema()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Print out incoming data</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>query2 <span class="op">=</span> df2.writeStream <span class="op">\</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">&quot;append&quot;</span>) <span class="op">\</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">&quot;console&quot;</span>) <span class="op">\</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    .trigger(processingTime<span class="op">=</span><span class="st">&#39;3 seconds&#39;</span>) <span class="op">\</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    .queryName(<span class="st">&quot;query 2&quot;</span>) <span class="op">\</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co"># run query</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>query2.awaitTermination()</span></code></pre></div>
+<p><strong>ACTION: Comment out query1</strong></p>
+<p><strong>ACTION: Use the code below</strong></p>
+<p><strong>ACTION: Stop the streaming code, by hitting Ctrl+C, and run
+it again</strong></p>
+<p><strong>ACTION: Also run the clickstream producer again to send
+data</strong></p>
+<pre class="console"><code>------------------------------------------
+Batch: 17
+-------------------------------------------
++------------+-------------+---------+-------+-------+------------+-----------+----+
+|         key|    timestamp|       ip|   user| action|      domain|   campaign|cost|
++------------+-------------+---------+-------+-------+------------+-----------+----+
+|facebook.com|1642826798006|  1.4.4.3|user-33|blocked|facebook.com|campaign-59|  93|
+|   gmail.com|1642826796603|  1.2.8.1|user-18| viewed|   gmail.com|campaign-17|  66|
+|   gmail.com|1642826796803|  3.1.2.7|user-67| viewed|   gmail.com|campaign-88|  78|
++------------+-------------+---------+-------+-------+------------+-----------+----+</code></pre>
+<h2 id="step-8-todo-2-run-a-spark-sql-query-on-the-data">Step-8: TODO-2
+: Run a Spark-SQL Query on the Data</h2>
+<p>we are going to run a SQL query on Kafka data! How cool is that?</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># code for </span><span class="al">TODO</span><span class="co">-2</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">## Let&#39;s do a SQL query on Kafka data!</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>df2.createOrReplaceTempView(<span class="st">&quot;clickstream_view&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate avg spend per domain</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>sql_str <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st">SELECT domain, count(*) as impressions, MIN(cost), AVG(cost), MAX(cost)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">FROM clickstream_view</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">GROUP BY domain</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>domain_cost <span class="op">=</span> spark.sql(sql_str)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: try &#39;update&#39; and &#39;complete&#39; mode</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>query3 <span class="op">=</span> domain_cost.writeStream <span class="op">\</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">&quot;complete&quot;</span>) <span class="op">\</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">&quot;console&quot;</span>) <span class="op">\</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    .trigger(processingTime<span class="op">=</span><span class="st">&#39;3 seconds&#39;</span>) <span class="op">\</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    .queryName(<span class="st">&quot;domain cost&quot;</span>) <span class="op">\</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>query3.awaitTermination()</span></code></pre></div>
+<p><strong>ACTION: Comment out previous queries</strong></p>
+<p><strong>ACTION: Use the code below</strong></p>
+<p><strong>ACTION: Stop the streaming code, by hitting Ctrl+C, and run
+it again</strong></p>
+<p><strong>ACTION: Also run the clickstream producer again to send
+data</strong></p>
+<pre class="console"><code>-------------------------------------------
+Batch: 7
+-------------------------------------------
++------------+-----------+---------+------------------+---------+
+|      domain|impressions|min(cost)|         avg(cost)|max(cost)|
++------------+-----------+---------+------------------+---------+
+| youtube.com|         25|        1|             53.36|       97|
+|   gmail.com|         21|        5|48.476190476190474|       97|
+|facebook.com|         15|       16| 52.86666666666667|       98|
+| twitter.com|         16|        2|           31.8125|       79|
+|linkedin.com|         17|        2| 44.11764705882353|       96|
++------------+-----------+---------+------------------+---------+</code></pre>

@@ -1,0 +1,52 @@
+<p><link rel='stylesheet' href='../assets/css/main.css'/></p>
+<p><a href="../README.html">&lt;&lt; back to main index</a></p>
+<h1 id="lab-1.1-run-kafka">Lab 1.1: Run Kafka</h1>
+<p><b> <span style="color:red;"> Note: Kafka is already installed on lab
+machines. No need to install it again. The instructions are provided as
+reference </span></b></p>
+<h3 id="overview">Overview</h3>
+<p>Install and run Kafka</p>
+<h3 id="depends-on">Depends On</h3>
+<p>None</p>
+<h3 id="run-time">Run time</h3>
+<p>10 mins</p>
+<h2 id="step-1-download-and-unpack-kafka">Step 1: Download and Unpack
+Kafka</h2>
+<p>Here we are assuming that you are installing kafka in
+<code>~/apps/kafka</code>. Adjust command paths according to your kafka
+location.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   cd   ~/apps</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   wget https://dlcdn.apache.org/kafka/3.2.0/kafka_2.12-3.2.0.tgz</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># $   wget https://elephantscale-public.s3.amazonaws.com/downloads/kafka_2.12-3.2.0.tgz</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   tar xvf kafka_2.12-3.2.0.tgz</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   mv kafka_2.12-3.2.0    kafka</span></code></pre></div>
+<h2 id="step-2-start-zookeeper">Step 2: Start Zookeeper</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   ~/apps/kafka/bin/zookeeper-server-start.sh    ~/apps/kafka/config/zookeeper.properties</span></code></pre></div>
+<h2 id="step-3-start-kafka">Step 3: Start Kafka</h2>
+<p>Start Kafka</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   JMX_PORT=9999  ~/apps/kafka/bin/kafka-server-start.sh <span class="at">-daemon</span> <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        ~/apps/kafka/config/server.properties</span></code></pre></div>
+<p>We are setting the optional JMX port so we can get metrics
+easily.</p>
+<h2 id="step-4-verify-kafka-is-running">Step 4: Verify Kafka is
+Running</h2>
+<p>Try JPS command to see if Kafka is running</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>  jps</span></code></pre></div>
+<p>Output may look like this. We have Zookeeper and Kafka running</p>
+<pre class="console"><code>4737 QuorumPeerMain
+5361 Kafka
+5075 main
+5092 main
+5418 Jps</code></pre>
+<h2 id="extra">Extra</h2>
+<p>Enable deleting the topics</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   echo <span class="at">-e</span> <span class="st">&quot;\n\ndelete.topic.enable=true \n&quot;</span> <span class="op">&gt;&gt;</span> ~/apps/kafka/config/server.properties</span></code></pre></div>
+<p>And restart Kafka</p>

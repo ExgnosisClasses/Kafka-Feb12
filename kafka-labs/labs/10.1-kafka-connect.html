@@ -1,0 +1,86 @@
+<p><link rel='stylesheet' href='../assets/css/main.css'/></p>
+<p><a href="../README.html">&lt;&lt; back to main index</a></p>
+<h1 id="lab-10.1-kafka-connect">Lab 10.1: Kafka Connect</h1>
+<h2 id="overview">Overview</h2>
+<p>Write data from a local file to a Kafka topic</p>
+<h2 id="run-time">Run time</h2>
+<p>40 mins</p>
+<h2 id="step-1-creating-a-topic-to-write-to">Step 1: Creating a Topic to
+Write to</h2>
+<p>Create topic <code>my-connect-test</code></p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>  ~/apps/kafka/bin/kafka-topics.sh <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--create</span> <span class="dt">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">--bootstrap-server</span> localhost:9092 <span class="dt">\</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">--replication-factor</span> 1 <span class="dt">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">--partitions</span> 1 <span class="dt">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">--topic</span> my-connect-test</span></code></pre></div>
+<h2 id="step-2-creating-a-source-config-file">Step 2: Creating a Source
+Config File</h2>
+<p>Since we are reading the contents of a local file and writing to
+Kafka, this file is considered our “sourcer. Therefore we will use the
+FileSource connector. We must create a configuration file to use with
+this connector. For this most part you can copy the example available in
+<code>$KAFKA_HOME/config/connect-file-source.properties</code>. Below is
+an example of our my-file-source.properties file</p>
+<pre class="text"><code># my-file-source.properties config file
+name=local-file-source
+connector.class=FileStreamSource
+tasks.max=1
+file=/tmp/my-test.txt
+topic=my-connect-test</code></pre>
+<p>This file indicates that we will use the FileStreamSource connector
+class, read data from the /tmp.my-test.txt file, and publish records to
+the my-connect-test Kafka topic. We are also only using 1 task to push
+this data to Kafka, since we are reading/publishing a single file.</p>
+<h2 id="step-3-creating-a-worker-config-file">Step 3: Creating a Worker
+Config File</h2>
+<p>You can find a sample config file for standalone workers in
+<code>$KAFKA_HOME/config/connect-standalone.properties</code>. We will
+call our file my-standalone.properties.</p>
+<pre class="text"><code># my-standalone.properties worker config file
+    
+#bootstrap kafka servers
+bootstrap.servers=localhost:9092
+    
+# specify input data format
+key.converter=org.apache.kafka.connect.storage.StringConverter
+value.converter=org.apache.kafka.connect.storage.StringConverter
+    
+# The internal converter used for offsets, most will always want to use the built-in default
+internal.key.converter=org.apache.kafka.connect.json.JsonConverter
+internal.value.converter=org.apache.kafka.connect.json.JsonConverter
+internal.key.converter.schemas.enable=false
+internal.value.converter.schemas.enable=false
+    
+# local file storing offsets and config data
+offset.storage.file.filename=/tmp/connect.offsets</code></pre>
+<p>The main change in this example in comparison to the default is the
+key.converter and value.converter settings. Since our file contains
+simple text, we use the StringConverter types.</p>
+<h2 id="step-4-create-the-input-source-file">Step 4: Create the input
+source file</h2>
+<p>Create a file /tmp/my-test.txt and add in several lines of text. Here
+is an example:</p>
+<pre class="text"><code>line 1
+line 2
+line 3</code></pre>
+<h2 id="step-5-run-console-conumer">Step 5: Run Console Conumer</h2>
+<p>If you have Kafkacat</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   kafkacat <span class="at">-C</span> <span class="at">-b</span> localhost:9092 <span class="at">-t</span> my-connect-test <span class="at">-f</span> <span class="st">&#39;key: %k, value: %s \n&#39;</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   ~/apps/kafka/bin/kafka-console-consumer.sh <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">--bootstrap-server</span> localhost:9092 <span class="at">--topic</span> my-connect-test</span></code></pre></div>
+<h2 id="step-6-running-kafka-connect">Step 6: Running Kafka Connect</h2>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   ~/apps/kafka/bin/connect-standalone.sh ~/apps/kafka/config/my-standalone.properties ~/apps/kafka/config/my-file-source.properties</span></code></pre></div>
+<p>Our input file /tmp/my-test.txt will be read in a single process to
+the Kafka my-connect-test topic.</p>
+<h2 id="step-7-reading-from-the-kafka-topic">Step 7: Reading from the
+Kafka Topic</h2>
+<p>If we read from the Kafka topic that we created earlier, we should
+see the 3 lines in the source file that were written to Kafka:</p>
+<h2 id="congratulations-you-completed-this-lab">Congratulations! You
+completed this lab 👏</h2>

@@ -1,0 +1,57 @@
+<p><link rel='stylesheet' href='../assets/css/main.css'/></p>
+<p><a href="../README.html">&lt;&lt; back to main index</a></p>
+<h1 id="lab-7.5-kafka-streaming---groupby">Lab 7.5: Kafka Streaming -
+Groupby</h1>
+<h2 id="overview">Overview</h2>
+<p>Apply <code>groupby</code> transformation on KStreams</p>
+<h2 id="depends-on">Depends On</h2>
+<p><a href="07.1-streaming-intro.html">7.1 streaming intro</a></p>
+<h2 id="run-time">Run time</h2>
+<p>20 mins</p>
+<h2 id="step-1-streaming-consumer-5">Step 1: Streaming Consumer 5</h2>
+<p>File :
+<code>src/main/java/x/lab07_streams/StreamsConsumer5_GroupBy.java</code></p>
+<p>This consumer will apply the following transformation to a
+KafkaStream - map the incoming record into key value pair with
+(action,1) - aggregate all actions by - groupby action - and counting
+them</p>
+<p><strong>=&gt; Inspect the file and fix the TODO items.</strong></p>
+<p><strong>Run the <code>lab07_streams/StreamsConsumer5_GroupBy</code>
+in Eclipse</strong></p>
+<h2 id="step-2-run-producer">Step 2: Run Producer</h2>
+<p><strong>Run the <code>utils.ClickStreamProducer</code> in
+Eclipse</strong></p>
+<p>Expected output:</p>
+<pre class="console"><code>....
+
+[KTABLE-TOSTREAM-0000000009]: clicked, 13
+[KTABLE-TOSTREAM-0000000009]: blocked, 7
+[KTABLE-TOSTREAM-0000000009]: viewed, 3
+[KTABLE-TOSTREAM-0000000009]: clicked, 14
+[KTABLE-TOSTREAM-0000000009]: blocked, 8
+[KTABLE-TOSTREAM-0000000009]: clicked, 15
+[KTABLE-TOSTREAM-0000000009]: blocked, 9
+[KTABLE-TOSTREAM-0000000009]: clicked, 16
+[KTABLE-TOSTREAM-0000000009]: clicked, 17
+[KTABLE-TOSTREAM-0000000009]: blocked, 10</code></pre>
+<h2 id="step-3-run-producer-again">Step 3: Run Producer Again</h2>
+<p><strong>Run the <code>utils.ClickStreamProducer</code> in
+Eclipse</strong></p>
+<p><strong>Notice the counts, what do you see?</strong></p>
+<h2 id="step-4-bonus-lab-inspect-action-count-topic">Step 4: Bonus Lab:
+Inspect <code>action-count</code> topic</h2>
+<p>In this bonus lab, instead of printing the results to console, we are
+going to write it out to another Kafka topic.</p>
+<p>Once you make the code changes, you can inspect Kafka topic as
+follows</p>
+<p>Using Kafkacat</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>   kafkacat <span class="at">-q</span> <span class="at">-C</span> <span class="at">-b</span> localhost:9092 <span class="at">-t</span> action-count  <span class="at">-s</span> key=s  <span class="at">-s</span> value=q <span class="at">-f</span> <span class="st">&#39;%k:%s\n&#39;</span></span></code></pre></div>
+<p>or using console consumer</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">$</span>   ~/apps/kafka/bin/kafka-console-consumer.sh<span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--bootstrap-server</span> <span class="st">&quot;localhost:9092&quot;</span><span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">--from-beginning</span><span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">--property</span> print.key=true<span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">--property</span> value.deserializer=org.apache.kafka.common.serialization.LongDeserializer<span class="dt">\</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">--topic</span> action-count</span></code></pre></div>
